@@ -9,6 +9,7 @@ import aws_cdk.aws_iam as iam
 import aws_cdk.aws_elasticloadbalancingv2 as elbv2
 import aws_cdk.aws_route53 as route53
 import aws_cdk.aws_certificatemanager as acm
+import aws_cdk.aws_ec2 as ec2
 from os import path
 
 
@@ -43,6 +44,10 @@ class ChatbotApp(Stack):
             directory=path.join(path.dirname(__file__), "docker_app"),
         )
 
+        vpc = ec2.Vpc(self, "Vpc", max_azs=2, nat_gateways=0)
+
+
+
         load_balanced_fargate_service = (
             ecs_patterns.ApplicationLoadBalancedFargateService(
                 self,
@@ -55,6 +60,8 @@ class ChatbotApp(Stack):
                 domain_name=f"{subdomain}.{domain_name}",
                 domain_zone=hosted_zone,
                 redirect_http=True,
+                assign_public_ip=True,
+                vpc=vpc,
             )
         )
 
