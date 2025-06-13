@@ -16,6 +16,8 @@ if "messages" not in st.session_state:
     st.session_state["messages"] = []
 
 # Sidebar Setup (select model)
+
+st.sidebar.title("Model Selection")
 selected_model = st.sidebar.selectbox(
     "Select Model", options=list(model_options.keys()), index=0
 )
