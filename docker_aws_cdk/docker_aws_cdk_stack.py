@@ -10,6 +10,7 @@ import aws_cdk.aws_elasticloadbalancingv2 as elbv2
 import aws_cdk.aws_route53 as route53
 import aws_cdk.aws_certificatemanager as acm
 import aws_cdk.aws_ec2 as ec2
+import aws_cdk.aws_secretsmanager as secretsmanager
 from os import path
 
 
@@ -20,6 +21,7 @@ class ChatbotApp(Stack):
 
         domain_name = self.node.try_get_context("domain_name")
         subdomain = self.node.try_get_context("subdomain")
+        secret_arn = self.node.try_get_context("streamlit_secret_arn")
         print(f"domain_name: {domain_name}")
         print(f"subdomain: {subdomain}")
         if not domain_name or not subdomain:
@@ -48,14 +50,25 @@ class ChatbotApp(Stack):
 
 
 
+        task_image_options = {
+            "image": ecs.ContainerImage.from_docker_image_asset(asset),
+            "container_port": 8501,
+        }
+        if secret_arn:
+            secret = secretsmanager.Secret.from_secret_complete_arn(
+                self,
+                "StreamlitSecret",
+                secret_arn,
+            )
+            task_image_options["secrets"] = {
+                "STREAMLIT_SECRETS": ecs.Secret.from_secrets_manager(secret)
+            }
+
         load_balanced_fargate_service = (
             ecs_patterns.ApplicationLoadBalancedFargateService(
                 self,
                 "Service",
-                task_image_options={
-                    "image": ecs.ContainerImage.from_docker_image_asset(asset),
-                    "container_port": 8501,
-                },
+                task_image_options=task_image_options,
                 certificate=certificate,
                 domain_name=f"{subdomain}.{domain_name}",
                 domain_zone=hosted_zone,

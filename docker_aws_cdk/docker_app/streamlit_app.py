@@ -5,6 +5,14 @@ from botocore.exceptions import ClientError
 # Set the page title and icon
 st.set_page_config(page_title="🦜🔗 Chatbot App", page_icon="🤖")
 
+# Simple login flow using Streamlit's built-in authentication. The
+# necessary OpenID Connect details are provided via `secrets.toml`.
+if not st.user.is_logged_in:
+    st.button("Log in", on_click=st.login)
+    st.stop()
+
+st.button("Log out", on_click=st.logout)
+
 # Sidebar for model selection
 model_options = {
     "Anthropic: Claude 3 Sonnet": "anthropic.claude-3-sonnet-20240229-v1:0",
