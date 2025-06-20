@@ -46,10 +46,21 @@ This project deploys a Streamlit-based chatbot UI using Amazon Bedrock models, r
    cdk bootstrap
    ```
 
-3. **Set required context values and deploy (replace with your domain):**
+3. **Create a Secrets Manager entry with your OIDC settings.** The
+   secret should contain the entire contents of `.streamlit/secrets.toml` as
+   a string. For example:
+
+   ```bash
+   aws secretsmanager create-secret \
+       --name streamlit-auth-secrets \
+       --secret-string "$(cat .streamlit/secrets.toml)"
+   ```
+
+4. **Set required context values and deploy (replace with your domain and secret ARN):**
 
    ```cmd
-   cdk deploy -c domain_name=yourdomain.com -c subdomain=bot
+   cdk deploy -c domain_name=yourdomain.com -c subdomain=bot \
+              -c streamlit_secret_arn=arn:aws:secretsmanager:...:secret:streamlit-auth-secrets
    ```
 
    This will:
@@ -58,12 +69,13 @@ This project deploys a Streamlit-based chatbot UI using Amazon Bedrock models, r
    - Provision an ECS Fargate service behind an HTTPS load balancer
    - Set up Route53 DNS and ACM certificate for `bot.yourdomain.com`
 
-4. **Access the chatbot:**
+5. **Access the chatbot:**
 
    Visit `https://bot.yourdomain.com` after deployment completes.
 
 ## Notes
 
 - The chatbot UI logic is in `docker_aws_cdk/docker_app/streamlit_app.py`.
+- The Docker image installs `streamlit>=1.35` and `Authlib>=1.3.2` to support the authentication features.
 - Bedrock API access is required for the deployed service.
 - To modify the chatbot, edit the Streamlit app and redeploy.
