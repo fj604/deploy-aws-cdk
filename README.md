@@ -76,6 +76,6 @@ This project deploys a Streamlit-based chatbot UI using Amazon Bedrock models, r
 ## Notes
 
 - The chatbot UI logic is in `docker_aws_cdk/docker_app/streamlit_app.py`.
-- The Docker image installs `streamlit>=1.35` to support the `st.user` login API.
+- The Docker image installs `streamlit>=1.35` and `Authlib>=1.3.2` to support the authentication features.
 - Bedrock API access is required for the deployed service.
 - To modify the chatbot, edit the Streamlit app and redeploy.
