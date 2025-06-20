@@ -5,9 +5,9 @@ from botocore.exceptions import ClientError
 # Set the page title and icon
 st.set_page_config(page_title="🦜🔗 Chatbot App", page_icon="🤖")
 
-# Simple login flow using Streamlit's built-in authentication. The
-# necessary OpenID Connect details are provided via `secrets.toml`.
-if not st.user.is_logged_in:
+# Simple login flow using Streamlit's built-in authentication.
+# `st.user` replaced the old `st.experimental_user` API.
+if not getattr(st.user, "is_logged_in", False):
     st.button("Log in", on_click=st.login)
     st.stop()
 
